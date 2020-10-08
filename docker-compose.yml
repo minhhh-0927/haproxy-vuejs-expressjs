@@ -1,0 +1,62 @@
+version: '3'
+
+services:
+  nodejs-server:
+    build:
+      context: ./api
+      dockerfile: Dockerfile-dev
+    ports:
+      - "3080:3080"
+    container_name: node-api
+    hostname: node-api
+    volumes:
+       - ./api:/usr/src/app/api
+       - /usr/src/app/api/node_modules
+    networks:
+      - cluster-network
+
+  vue-ui1:
+    build:
+      context: ./my-app
+      dockerfile: Dockerfile-dev
+    ports:
+      - "8001:8080"
+    container_name: vue-ui1
+    hostname: vue-ui1
+    volumes:
+       - ./my-app:/usr/src/app/my-app
+       - /usr/src/app/my-app/node_modules
+    networks:
+      - cluster-network
+
+  vue-ui2:
+    build:
+      context: ./my-app
+      dockerfile: Dockerfile-dev
+    ports:
+      - "8002:8080"
+    container_name: vue-ui2
+    hostname: vue-ui2
+    volumes:
+      - ./my-app:/usr/src/app/my-app
+      - /usr/src/app/my-app/node_modules
+    networks:
+      - cluster-network
+
+  haproxy:
+    build:
+      context: haproxy
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+      - "5000:5000"
+    container_name: haproxy
+    hostname: haproxy
+    volumes:
+    - ./haproxy:/usr/src/app/haproxy
+    networks:
+      - cluster-network
+
+networks:
+ cluster-network:
+  driver: bridge
